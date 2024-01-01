@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE-edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Countdown</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                padding: 20px;
+            }
+            h1 {
+                color: #333;
+                font-size: 10em;
+            }
+            #countdown {
+                font-size: 13em;
+                font-weight: bold;
+                color: #009688;
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="countdown">
+
+            <script>
+                //Set the countdown date (replace with your desired date)
+                var countdownDate = new Date('Dec 31, 2023 00:00:00').getTime();
+
+                //Update the countdown every second
+                var countdownInterval = setInterval(function() {
+                    var now = new Date().getTime();
+                    var distance = countdownDate - now;
+
+                    //Calculate days, hours, minutes, and seconds
+                    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    var seconds = Math.floor((distance % (1000 * 60)) / (1000));
+
+                    //Display the countdown
+                    document.getElementById("countdown").innerHTML = hours + "h"+ "-" + minutes + "m" + "-" + seconds + "s";
+
+                    // If the countdown is over, display a message
+                    if (distance < 0) {
+                        clearInterval(countdownInterval);
+                    document.getElementById("countdown").innerHTML = "HAPPY NEW YEAR!";
+                    }
+                }, 1000);
+            </script>
+        </div>
+    </body>
+</html>

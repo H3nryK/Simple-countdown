@@ -1,55 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE-edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Countdown</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                text-align: center;
-                padding: 20px;
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Countdown</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f7f7f7;
+            color: #333;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #009688;
+            animation: bounce 1s ease-in-out infinite alternate;
+        }
+        #countdown {
+            font-size: 6em;
+            font-weight: bold;
+            color: #009688;
+            margin-top: 20px;
+            animation: pulse 1s ease-in-out infinite alternate;
+        }
+        #progress-bar {
+            width: 100%;
+            height: 30px;
+            background-color: #f0f0f0;
+            margin-top: 10px;
+        }
+        #progress {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0%;
+        }
+        #additional-info {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #555;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+            animation: slideIn 1s ease-in-out;
+        }
+        #customize-form {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: slideIn 1s ease-in-out;
+        }
+        input, button {
+            margin: 10px;
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 30px;
+            background-color: #009688;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            outline: none;
+            position: relative;
+            overflow: hidden;
+        }
+        input::placeholder {
+            color: #ddd;
+        }
+        button:hover {
+            background-color: #00796b;
+        }
+        button::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+            z-index: 0;
+            transform: translate(-50%, -50%);
+        }
+        button:hover::before {
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+                opacity: 1;
             }
+            to {
+                transform: scale(1.1);
+                opacity: 0.7;
+            }
+        }
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media only screen and (max-width: 600px) {
             h1 {
-                color: #333;
-                font-size: 10em;
+                font-size: 2em;
             }
             #countdown {
-                font-size: 13em;
-                font-weight: bold;
-                color: #009688;
-                margin-top: 20px;
+                font-size: 4em;
             }
-        </style>
-    </head>
-    <body>
-        <div id="countdown">
+            #additional-info {
+                font-size: 1em;
+            }
+            #customize-form input, #customize-form button {
+                padding: 10px 20px;
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="countdown"></div>
+    <div id="progress-bar">
+        <div id="progress"></div>
+    </div>
+    <div id="additional-info"></div>
+    
+    <form id="customize-form">
+        <label for="event-date">Enter countdown date:</label>
+        <input type="datetime-local" id="event-date" name="event-date">
+        <br>
+        <label for="event-name">Event Name:</label>
+        <input type="text" id="event-name" name="event-name" placeholder="Event Name">
+        <br>
+        <label for="end-message">Customize end message:</label>
+        <input type="text" id="end-message" name="end-message" placeholder="HAPPY EVENT!">
+        <br>
+        <button type="button" onclick="customizeCountdown()">Start Countdown</button>
+        <button type="button" onclick="pauseCountdown()">Pause Countdown</button>
+        <button type="button" onclick="stopCountdown()">Stop Countdown</button>
+    </form>
 
-            <script>
-                //Set the countdown date (replace with your desired date)
-                var countdownDate = new Date('Dec 31, 2023 00:00:00').getTime();
+    <script>
+        var countdownInterval;
+        var countdownAudio = document.getElementById('countdown-audio');
+        var progressElement = document.getElementById('progress');
+        var countdownDuration;
 
-                //Update the countdown every second
-                var countdownInterval = setInterval(function() {
-                    var now = new Date().getTime();
-                    var distance = countdownDate - now;
+        // Function to customize the countdown timer
+        function customizeCountdown() {
+            // Clear existing interval to prevent multiple countdowns running simultaneously
+            clearInterval(countdownInterval);
 
-                    //Calculate days, hours, minutes, and seconds
+            // Get the user-inputted countdown date
+            var eventDateInput = document.getElementById("event-date");
+            var countdownDate = new Date(eventDateInput.value).getTime();
+
+            // Get the user-inputted event name
+            var eventNameInput = document.getElementById("event-name");
+            var eventName = eventNameInput.value.trim() || "Event";
+
+            // Get the user-inputted end message
+            var endMessageInput = document.getElementById("end-message");
+            var endMessage = endMessageInput.value.trim() || "HAPPY EVENT!";
+
+            // Display additional information
+            displayAdditionalInfo(eventName, countdownDate);
+            
+            // Update the countdown every second
+            countdownDuration = countdownDate - Date.now();
+
+            // Update the countdown every second
+            countdownInterval = setInterval(function() {
+                var now = new Date().getTime();
+                var distance = countdownDate - now;
+                var percentage = (1 - distance / countdownDuration) * 100;
+
+                // If the countdown is over, display the custom end message and play sound effect
+                if (distance <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById("countdown").innerHTML = endMessage;
+                    countdownAudio.play(); // Play sound effect
+                } else {
+                    // Calculate days, hours, minutes, and seconds
+                    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
                     var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    var seconds = Math.floor((distance % (1000 * 60)) / (1000));
+                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                    //Display the countdown
-                    document.getElementById("countdown").innerHTML = hours + "h"+ "-" + minutes + "m" + "-" + seconds + "s";
-
-                    // If the countdown is over, display a message
-                    if (distance < 0) {
-                        clearInterval(countdownInterval);
-                    document.getElementById("countdown").innerHTML = "HAPPY NEW YEAR!";
+                    // Display the countdown
+                    var countdownText = '';
+                    if (days > 0) {
+                        countdownText += days + "d ";
                     }
-                }, 1000);
-            </script>
-        </div>
-    </body>
+                    countdownText += hours + "h " + minutes + "m " + seconds + "s until " + eventName;
+                    document.getElementById("countdown").innerHTML = countdownText;
+                    
+                    // Update progress bar
+                    progressElement.style.width = percentage + "%";
+                }
+            }, 1000);
+        }
+        
+        // Function to pause the countdown timer
+        function pauseCountdown() {
+            clearInterval(countdownInterval);
+        }
+
+        // Function to stop the countdown timer
+        function stopCountdown() {
+            clearInterval(countdownInterval);
+            document.getElementById("countdown").innerHTML = "Countdown Stopped";
+            document.getElementById("additional-info").innerHTML = ""; // Clear additional info
+        }
+
+        // Function to display additional information
+        function displayAdditionalInfo(eventName, countdownDate) {
+            var eventDate = new Date(countdownDate);
+            var eventDateString = "Event Date: " + eventDate.toDateString();
+            var eventTimeString = "Event Time: " + eventDate.toLocaleTimeString();
+            var timeZoneString = "Time Zone: " + Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+            var additionalInfo = eventDateString + "<br>" + eventTimeString + "<br>" + timeZoneString;
+            document.getElementById("additional-info").innerHTML = additionalInfo;
+        }
+    </script>
+</body>
 </html>

@@ -1,0 +1,140 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    scroll-behavior: smooth;
+}
+body {
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    padding: 20px;
+    background-color: #f7f7f7;
+    color: #333;
+    margin: 0;
+    overflow-x: hidden;
+}
+h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    color: #009688;
+    animation: bounce 1s ease-in-out infinite alternate;
+}
+#countdown {
+    font-size: 6em;
+    font-weight: bold;
+    color: #009688;
+    margin-top: 20px;
+    animation: pulse 1s ease-in-out infinite alternate;
+}
+#progress-bar {
+    width: 100%;
+    height: 30px;
+    background-color: #f0f0f0;
+    margin-top: 10px;
+}
+#progress {
+    height: 100%;
+    background-color: #4caf50;
+    width: 0%;
+}
+#additional-info {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #555;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+    animation: slideIn 1s ease-in-out;
+}
+#customize-form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: slideIn 1s ease-in-out;
+}
+input, button {
+    margin: 10px;
+    padding: 12px 24px;
+    font-size: 1em;
+    border: none;
+    border-radius: 30px;
+    background-color: #009688;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    outline: none;
+    position: relative;
+    overflow: hidden;
+}
+input::placeholder {
+    color: #ddd;
+}
+button:hover {
+    background-color: #00796b;
+}
+button::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300%;
+    height: 300%;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+    z-index: 0;
+    transform: translate(-50%, -50%);
+}
+button:hover::before {
+    width: 0;
+    height: 0;
+    opacity: 0;
+}
+@keyframes pulse {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+}
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    h1 {
+        font-size: 2em;
+    }
+    #countdown {
+        font-size: 4em;
+    }
+    #additional-info {
+        font-size: 1em;
+    }
+    #customize-form input, #customize-form button {
+        padding: 10px 20px;
+        font-size: 0.8em;
+    }
+}
